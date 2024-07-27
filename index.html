@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Écrit, Partage</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header .menu {
+            display: flex;
+        }
+        .header .menu a {
+            text-decoration: none;
+            color: #333;
+            font-size: 18px;
+            margin: 0 15px;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .header .menu a:hover {
+            background-color: #f0f0f0;
+        }
+        .main-content, .explore-tweets, .profile-setup, .profile-view, .settings {
+            padding: 20px;
+            display: none;
+            overflow-y: auto;
+        }
+        .tweet-box {
+            margin-bottom: 20px;
+        }
+        .tweet-box textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        .tweet-box input[type="file"] {
+            margin-bottom: 10px;
+        }
+        .tweet-box button {
+            background-color: #1DA1F2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tweet-box button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .tweet-list {
+            margin-top: 20px;
+        }
+        .tweet {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            position: relative;
+        }
+        .tweet-profile {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .tweet-profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .tweet-profile span {
+            font-weight: bold;
+        }
+        .tweet-time {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .tweet-image {
+            max-width: 300px; /* Ajustez cette valeur selon vos besoins */
+            max-height: 200px; /* Ajustez cette valeur selon vos besoins */
+            width: auto;
+            height: auto;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .tweet-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .tweet-actions button {
+            background-color: #1DA1F2;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .tweet-actions button:hover {
+            background-color: #0d8bf2;
+        }
+        .tweet-comments {
+            margin-top: 10px;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .tweet-comments textarea {
+            width: calc(100% - 22px);
+            height: 50px;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            margin-bottom: 10px;
+        }
+        .comment {
+            margin-bottom: 10px;
+        }
+        .comment-profile img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .comment-profile span {
+            font-weight: bold;
+        }
+        .comment-content {
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        .settings select {
+            width: 100%;
+            padding: 5px;
+        }
+        .settings label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .settings button {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="menu">
+            <a href="#" onclick="showPublish()">Publier</a>
+            <a href="#" onclick="showExplore()">Explorer</a>
+            <a href="#" onclick="showSettings()">Paramètres</a>
+            <a href="#" onclick="showProfile()">Profil</a>
+        </div>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="tweet-box">
+            <textarea id="tweetInput" placeholder="Que se passe-t-il ?"></textarea>
+            <input type="file" id="tweetImage" accept="image/*">
+            <button id="publishButton" onclick="postTweet()">Publier</button>
+            <p id="error-message" style="color: red; display: none;">Veuillez entrer un message !</p>
+            <p id="profile-error-message" style="color: red; display: none;">Veuillez compléter votre profil avant de publier !</p>
+            <p id="success-message" class="success-message" style="display: none;">Votre publication a été publiée !</p>
+        </div>
+    </div>
+
+    <div class="explore-tweets" id="exploreTweets">
+        <h2>Explorer les Publications</h2>
+        <div class="tweet-list" id="exploreTweetList">
+            <!-- Les tweets des autres utilisateurs s'afficheront ici -->
+        </div>
+    </div>
+
+    <div class="profile-setup" id="profileSetup">
+        <h2>Configurer Votre Profil</h2>
+        <form onsubmit="saveProfile(event)">
+            <label for="profileName">Votre Nom</label>
+            <input type="text" id="profileName" placeholder="Votre Nom" required>
+            <label for="profilePhoto">Choisir une Photo de Profil</label>
+            <input type="file" id="profilePhoto" accept="image/*" required>
+            <button type="submit">Enregistrer Profil</button>
+        </form>
+    </div>
+
+    <div class="profile-view" id="profileView">
+        <h2>Votre Profil</h2>
+        <img id="profileImage" src="" alt="Profile Image" style="width: 100px; height: 100px; border-radius: 50%;">
+        <h3 id="profileNameDisplay"></h3>
+        <button onclick="editProfile()">Modifier Profil</button>
+        <button class="logout-button" onclick="logout()">Se Déconnecter</button>
+    </div>
+
+    <div class="settings" id="settings">
+        <h2>Paramètres</h2>
+        <form onsubmit="saveSettings(event)">
+            <label for="languageSelect">Langue</label>
+            <select id="languageSelect">
+                <option value="auto">Par Défaut (Langue du Système)</option>
+                <option value="en">English</option>
+                <option value="fr">Français</option>
+                <option value="es">Español</option>
+            </select>
+            <button type="submit">Enregistrer Paramètres</button>
+        </form>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                title: "Écrit, Partage",
+                publish: "Publish",
+                explore: "Explore",
+                settings: "Settings",
+                profile: "Profile",
+                setupProfile: "Setup Your Profile",
+                saveProfile: "Save Profile",
+                yourProfile: "Your Profile",
+                editProfile: "Edit Profile",
+                logout: "Logout",
+                exploreTweets: "Explore Tweets",
+                tweetPlaceholder: "What's happening?",
+                tweetError: "Please enter a message!",
+                profileError: "Please complete your profile before publishing!",
+                settingsTitle: "Settings",
+                saveSettings: "Save Settings",
+                language: "Language",
+                default: "Default (System Language)"
+            },
+            fr: {
+                title: "Écrit, Partage",
+                publish: "Publier",
+                explore: "Explorer",
+                settings: "Paramètres",
+                profile: "Profil",
+                setupProfile: "Configurer Votre Profil",
+                saveProfile: "Enregistrer Profil",
+                yourProfile: "Votre Profil",
+                editProfile: "Modifier Profil",
+                logout: "Se Déconnecter",
+                exploreTweets: "Explorer les Publications",
+                tweetPlaceholder: "Que se passe-t-il ?",
+                tweetError: "Veuillez entrer un message !",
+                profileError: "Veuillez compléter votre profil avant de publier !",
+                settingsTitle: "Paramètres",
+                saveSettings: "Enregistrer Paramètres",
+                language: "Langue",
+                default: "Par Défaut (Langue du Système)"
+            },
+            es: {
+                title: "Escribe, Comparte",
+                publish: "Publicar",
+                explore: "Explorar",
+                settings: "Configuración",
+                profile: "Perfil",
+                setupProfile: "Configura Tu Perfil",
+                saveProfile: "Guardar Perfil",
+                yourProfile: "Tu Perfil",
+                editProfile: "Editar Perfil",
+                logout: "Cerrar Sesión",
+                exploreTweets: "Explorar Publicaciones",
+                tweetPlaceholder: "¿Qué está pasando?",
+                tweetError: "¡Por favor, ingresa un mensaje!",
+                profileError: "¡Completa tu perfil antes de publicar!",
+                settingsTitle: "Configuración",
+                saveSettings: "Guardar Configuración",
+                language: "Idioma",
+                default: "Predeterminado (Idioma del Sistema)"
+            }
+        };
+
+        function getLanguage() {
+            const userLang = navigator.language || navigator.userLanguage;
+            return userLang.includes('es') ? 'es' : userLang.includes('en') ? 'en' : 'fr';
+        }
+
+        function applyTranslations() {
+            const lang = getLanguage();
+            const texts = translations[lang];
+            document.title = texts.title;
+            document.querySelectorAll('.menu a')[0].textContent = texts.publish;
+            document.querySelectorAll('.menu a')[1].textContent = texts.explore;
+            document.querySelectorAll('.menu a')[2].textContent = texts.settings;
+            document.querySelectorAll('.menu a')[3].textContent = texts.profile;
+            document.getElementById('profileSetup').querySelector('h2').textContent = texts.setupProfile;
+            document.getElementById('profileSetup').querySelector('button').textContent = texts.saveProfile;
+            document.getElementById('profileView').querySelector('h2').textContent = texts.yourProfile;
+            document.getElementById('profileView').querySelector('button').textContent = texts.editProfile;
+            document.querySelector('.logout-button').textContent = texts.logout;
+            document.getElementById('exploreTweets').querySelector('h2').textContent = texts.exploreTweets;
+            document.getElementById('tweetInput').placeholder = texts.tweetPlaceholder;
+            document.getElementById('error-message').textContent = texts.tweetError;
+            document.getElementById('profile-error-message').textContent = texts.profileError;
+            document.getElementById('settings').querySelector('h2').textContent = texts.settingsTitle;
+            document.getElementById('settings').querySelector('button').textContent = texts.saveSettings;
+            document.getElementById('languageSelect').querySelector('option[value="auto"]').textContent = texts.default;
+            document.getElementById('languageSelect').querySelector('option[value="en"]').textContent = texts.language;
+            document.getElementById('languageSelect').querySelector('option[value="fr"]').textContent = texts.language;
+            document.getElementById('languageSelect').querySelector('option[value="es"]').textContent = texts.language;
+        }
+
+        function showPublish() {
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('exploreTweets').style.display = 'none';
+            document.getElementById('profileSetup').style.display = 'none';
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('settings').style.display = 'none';
+        }
+
+        function showExplore() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('exploreTweets').style.display = 'block';
+            document.getElementById('profileSetup').style.display = 'none';
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('settings').style.display = 'none';
+        }
+
+        function showSettings() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('exploreTweets').style.display = 'none';
+            document.getElementById('profileSetup').style.display = 'none';
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('settings').style.display = 'block';
+        }
+
+        function showProfile() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('exploreTweets').style.display = 'none';
+            document.getElementById('profileSetup').style.display = 'none';
+            document.getElementById('profileView').style.display = 'block';
+            document.getElementById('settings').style.display = 'none';
+        }
+
+        function postTweet() {
+            const tweetInput = document.getElementById('tweetInput').value;
+            const tweetImage = document.getElementById('tweetImage').files[0];
+            const profileName = document.getElementById('profileNameDisplay').textContent;
+            const profileImage = document.getElementById('profileImage').src;
+            if (!profileName || !profileImage) {
+                document.getElementById('profile-error-message').style.display = 'block';
+                return;
+            }
+            if (!tweetInput) {
+                document.getElementById('error-message').style.display = 'block';
+                return;
+            }
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('profile-error-message').style.display = 'none';
+            const tweetList = document.getElementById('exploreTweetList');
+            const tweetDiv = document.createElement('div');
+            tweetDiv.className = 'tweet';
+            tweetDiv.innerHTML = `
+                <div class="tweet-profile">
+                    <img src="${profileImage}" alt="Profile Image">
+                    <span>${profileName}</span>
+                </div>
+                <div class="tweet-time">${new Date().toLocaleString()}</div>
+                <p>${tweetInput}</p>
+                ${tweetImage ? `<img src="${URL.createObjectURL(tweetImage)}" class="tweet-image" alt="Tweet Image">` : ''}
+                <div class="tweet-actions">
+                    <button onclick="likeTweet(this)">Like</button>
+                    <button onclick="commentTweet(this)">Comment</button>
+                </div>
+                <div class="tweet-comments">
+                    <textarea placeholder="Ajouter un commentaire..."></textarea>
+                </div>
+            `;
+            tweetList.prepend(tweetDiv);
+            document.getElementById('tweetInput').value = '';
+            document.getElementById('tweetImage').value = '';
+            document.getElementById('success-message').style.display = 'block';
+        }
+
+        function likeTweet(button) {
+            button.textContent = button.textContent === 'Like' ? 'Liked' : 'Like';
+        }
+
+        function commentTweet(button) {
+            const commentBox = button.parentElement.nextElementSibling.querySelector('textarea');
+            commentBox.style.display = commentBox.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function saveProfile(event) {
+            event.preventDefault();
+            const profileName = document.getElementById('profileName').value;
+            const profilePhoto = document.getElementById('profilePhoto').files[0];
+            if (profileName && profilePhoto) {
+                document.getElementById('profileNameDisplay').textContent = profileName;
+                document.getElementById('profileImage').src = URL.createObjectURL(profilePhoto);
+                showPublish();
+            }
+        }
+
+        function editProfile() {
+            document.getElementById('mainContent').style.display = 'none';
+            document.getElementById('exploreTweets').style.display = 'none';
+            document.getElementById('profileSetup').style.display = 'block';
+            document.getElementById('profileView').style.display = 'none';
+            document.getElementById('settings').style.display = 'none';
+        }
+
+        function logout() {
+            document.getElementById('profileNameDisplay').textContent = '';
+            document.getElementById('profileImage').src = '';
+            showProfile();
+        }
+
+        function saveSettings(event) {
+            event.preventDefault();
+            const selectedLang = document.getElementById('languageSelect').value;
+            if (selectedLang === 'auto') {
+                document.documentElement.lang = getLanguage();
+            } else {
+                document.documentElement.lang = selectedLang;
+            }
+            applyTranslations();
+        }
+
+        applyTranslations();
+        showPublish(); // Afficher la page de publication par défaut
+    </script>
+</body>
+</html>
