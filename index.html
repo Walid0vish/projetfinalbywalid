@@ -100,8 +100,8 @@
             margin-bottom: 10px;
         }
         .tweet-image {
-            max-width: 300px; /* Ajustez cette valeur selon vos besoins */
-            max-height: 200px; /* Ajustez cette valeur selon vos besoins */
+            max-width: 300px;
+            max-height: 200px;
             width: auto;
             height: auto;
             border-radius: 5px;
@@ -268,178 +268,130 @@
                 saveSettings: "Enregistrer Paramètres",
                 language: "Langue",
                 default: "Par Défaut (Langue du Système)"
-            },
-            es: {
-                title: "Escribe, Comparte",
-                publish: "Publicar",
-                explore: "Explorar",
-                settings: "Configuración",
-                profile: "Perfil",
-                setupProfile: "Configura Tu Perfil",
-                saveProfile: "Guardar Perfil",
-                yourProfile: "Tu Perfil",
-                editProfile: "Editar Perfil",
-                logout: "Cerrar Sesión",
-                exploreTweets: "Explorar Publicaciones",
-                tweetPlaceholder: "¿Qué está pasando?",
-                tweetError: "¡Por favor, ingresa un mensaje!",
-                profileError: "¡Completa tu perfil antes de publicar!",
-                settingsTitle: "Configuración",
-                saveSettings: "Guardar Configuración",
-                language: "Idioma",
-                default: "Predeterminado (Idioma del Sistema)"
             }
         };
 
-        function getLanguage() {
-            const userLang = navigator.language || navigator.userLanguage;
-            return userLang.includes('es') ? 'es' : userLang.includes('en') ? 'en' : 'fr';
-        }
-
-        function applyTranslations() {
-            const lang = getLanguage();
-            const texts = translations[lang];
-            document.title = texts.title;
-            document.querySelectorAll('.menu a')[0].textContent = texts.publish;
-            document.querySelectorAll('.menu a')[1].textContent = texts.explore;
-            document.querySelectorAll('.menu a')[2].textContent = texts.settings;
-            document.querySelectorAll('.menu a')[3].textContent = texts.profile;
-            document.getElementById('profileSetup').querySelector('h2').textContent = texts.setupProfile;
-            document.getElementById('profileSetup').querySelector('button').textContent = texts.saveProfile;
-            document.getElementById('profileView').querySelector('h2').textContent = texts.yourProfile;
-            document.getElementById('profileView').querySelector('button').textContent = texts.editProfile;
-            document.querySelector('.logout-button').textContent = texts.logout;
-            document.getElementById('exploreTweets').querySelector('h2').textContent = texts.exploreTweets;
-            document.getElementById('tweetInput').placeholder = texts.tweetPlaceholder;
-            document.getElementById('error-message').textContent = texts.tweetError;
-            document.getElementById('profile-error-message').textContent = texts.profileError;
-            document.getElementById('settings').querySelector('h2').textContent = texts.settingsTitle;
-            document.getElementById('settings').querySelector('button').textContent = texts.saveSettings;
-            document.getElementById('languageSelect').querySelector('option[value="auto"]').textContent = texts.default;
-            document.getElementById('languageSelect').querySelector('option[value="en"]').textContent = texts.language;
-            document.getElementById('languageSelect').querySelector('option[value="fr"]').textContent = texts.language;
-            document.getElementById('languageSelect').querySelector('option[value="es"]').textContent = texts.language;
-        }
+        let currentLanguage = 'fr'; // Set default language
 
         function showPublish() {
-            document.getElementById('mainContent').style.display = 'block';
-            document.getElementById('exploreTweets').style.display = 'none';
-            document.getElementById('profileSetup').style.display = 'none';
-            document.getElementById('profileView').style.display = 'none';
-            document.getElementById('settings').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'block';
+            document.querySelector('.explore-tweets').style.display = 'none';
+            document.querySelector('.profile-setup').style.display = 'none';
+            document.querySelector('.profile-view').style.display = 'none';
+            document.querySelector('.settings').style.display = 'none';
         }
 
         function showExplore() {
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('exploreTweets').style.display = 'block';
-            document.getElementById('profileSetup').style.display = 'none';
-            document.getElementById('profileView').style.display = 'none';
-            document.getElementById('settings').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'none';
+            document.querySelector('.explore-tweets').style.display = 'block';
+            document.querySelector('.profile-setup').style.display = 'none';
+            document.querySelector('.profile-view').style.display = 'none';
+            document.querySelector('.settings').style.display = 'none';
         }
 
         function showSettings() {
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('exploreTweets').style.display = 'none';
-            document.getElementById('profileSetup').style.display = 'none';
-            document.getElementById('profileView').style.display = 'none';
-            document.getElementById('settings').style.display = 'block';
+            document.querySelector('.main-content').style.display = 'none';
+            document.querySelector('.explore-tweets').style.display = 'none';
+            document.querySelector('.profile-setup').style.display = 'none';
+            document.querySelector('.profile-view').style.display = 'none';
+            document.querySelector('.settings').style.display = 'block';
         }
 
         function showProfile() {
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('exploreTweets').style.display = 'none';
-            document.getElementById('profileSetup').style.display = 'none';
-            document.getElementById('profileView').style.display = 'block';
-            document.getElementById('settings').style.display = 'none';
+            document.querySelector('.main-content').style.display = 'none';
+            document.querySelector('.explore-tweets').style.display = 'none';
+            document.querySelector('.profile-setup').style.display = 'none';
+            document.querySelector('.profile-view').style.display = 'block';
+            document.querySelector('.settings').style.display = 'none';
         }
 
         function postTweet() {
-            const tweetInput = document.getElementById('tweetInput').value;
-            const tweetImage = document.getElementById('tweetImage').files[0];
-            const profileName = document.getElementById('profileNameDisplay').textContent;
-            const profileImage = document.getElementById('profileImage').src;
-            if (!profileName || !profileImage) {
-                document.getElementById('profile-error-message').style.display = 'block';
+            const tweetInput = document.getElementById('tweetInput');
+            const tweetImage = document.getElementById('tweetImage');
+            const errorMessage = document.getElementById('error-message');
+            const profileErrorMessage = document.getElementById('profile-error-message');
+            const successMessage = document.getElementById('success-message');
+
+            if (tweetInput.value.trim() === '') {
+                errorMessage.style.display = 'block';
                 return;
             }
-            if (!tweetInput) {
-                document.getElementById('error-message').style.display = 'block';
+
+            if (!document.getElementById('profileNameDisplay').innerText) {
+                profileErrorMessage.style.display = 'block';
                 return;
             }
-            document.getElementById('error-message').style.display = 'none';
-            document.getElementById('profile-error-message').style.display = 'none';
-            const tweetList = document.getElementById('exploreTweetList');
-            const tweetDiv = document.createElement('div');
-            tweetDiv.className = 'tweet';
-            tweetDiv.innerHTML = `
-                <div class="tweet-profile">
-                    <img src="${profileImage}" alt="Profile Image">
-                    <span>${profileName}</span>
-                </div>
-                <div class="tweet-time">${new Date().toLocaleString()}</div>
-                <p>${tweetInput}</p>
-                ${tweetImage ? `<img src="${URL.createObjectURL(tweetImage)}" class="tweet-image" alt="Tweet Image">` : ''}
-                <div class="tweet-actions">
-                    <button onclick="likeTweet(this)">Like</button>
-                    <button onclick="commentTweet(this)">Comment</button>
-                </div>
-                <div class="tweet-comments">
-                    <textarea placeholder="Ajouter un commentaire..."></textarea>
-                </div>
-            `;
-            tweetList.prepend(tweetDiv);
-            document.getElementById('tweetInput').value = '';
-            document.getElementById('tweetImage').value = '';
-            document.getElementById('success-message').style.display = 'block';
-        }
 
-        function likeTweet(button) {
-            button.textContent = button.textContent === 'Like' ? 'Liked' : 'Like';
-        }
-
-        function commentTweet(button) {
-            const commentBox = button.parentElement.nextElementSibling.querySelector('textarea');
-            commentBox.style.display = commentBox.style.display === 'none' ? 'block' : 'none';
+            errorMessage.style.display = 'none';
+            profileErrorMessage.style.display = 'none';
+            successMessage.style.display = 'block';
+            // Here you would actually handle the tweet posting process
+            console.log("Tweet posted: " + tweetInput.value);
+            tweetInput.value = '';
+            tweetImage.value = '';
         }
 
         function saveProfile(event) {
             event.preventDefault();
             const profileName = document.getElementById('profileName').value;
             const profilePhoto = document.getElementById('profilePhoto').files[0];
-            if (profileName && profilePhoto) {
-                document.getElementById('profileNameDisplay').textContent = profileName;
-                document.getElementById('profileImage').src = URL.createObjectURL(profilePhoto);
-                showPublish();
+            const profileNameDisplay = document.getElementById('profileNameDisplay');
+            const profileImage = document.getElementById('profileImage');
+
+            if (!profileName || !profilePhoto) {
+                alert("Veuillez remplir tous les champs.");
+                return;
             }
+
+            profileNameDisplay.innerText = profileName;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                profileImage.src = e.target.result;
+            };
+            reader.readAsDataURL(profilePhoto);
+
+            showProfile();
         }
 
         function editProfile() {
-            document.getElementById('mainContent').style.display = 'none';
-            document.getElementById('exploreTweets').style.display = 'none';
-            document.getElementById('profileSetup').style.display = 'block';
-            document.getElementById('profileView').style.display = 'none';
-            document.getElementById('settings').style.display = 'none';
+            showPublish();
+            document.querySelector('.profile-setup').style.display = 'block';
         }
 
         function logout() {
-            document.getElementById('profileNameDisplay').textContent = '';
-            document.getElementById('profileImage').src = '';
-            showProfile();
+            alert("Déconnecté.");
+            // Implement logout functionality here
         }
 
         function saveSettings(event) {
             event.preventDefault();
-            const selectedLang = document.getElementById('languageSelect').value;
-            if (selectedLang === 'auto') {
-                document.documentElement.lang = getLanguage();
-            } else {
-                document.documentElement.lang = selectedLang;
-            }
+            const languageSelect = document.getElementById('languageSelect');
+            currentLanguage = languageSelect.value;
             applyTranslations();
         }
 
-        applyTranslations();
-        showPublish(); // Afficher la page de publication par défaut
+        function applyTranslations() {
+            document.title = translations[currentLanguage].title;
+            document.querySelector('.header .menu a:nth-child(1)').innerText = translations[currentLanguage].publish;
+            document.querySelector('.header .menu a:nth-child(2)').innerText = translations[currentLanguage].explore;
+            document.querySelector('.header .menu a:nth-child(3)').innerText = translations[currentLanguage].settings;
+            document.querySelector('.header .menu a:nth-child(4)').innerText = translations[currentLanguage].profile;
+            document.querySelector('.profile-setup h2').innerText = translations[currentLanguage].setupProfile;
+            document.querySelector('.profile-setup button').innerText = translations[currentLanguage].saveProfile;
+            document.querySelector('.profile-view h2').innerText = translations[currentLanguage].yourProfile;
+            document.querySelector('.profile-view button:nth-child(2)').innerText = translations[currentLanguage].editProfile;
+            document.querySelector('.profile-view button:nth-child(3)').innerText = translations[currentLanguage].logout;
+            document.querySelector('.explore-tweets h2').innerText = translations[currentLanguage].exploreTweets;
+            document.querySelector('.tweet-box textarea').setAttribute('placeholder', translations[currentLanguage].tweetPlaceholder);
+            document.querySelector('#error-message').innerText = translations[currentLanguage].tweetError;
+            document.querySelector('#profile-error-message').innerText = translations[currentLanguage].profileError;
+            document.querySelector('#settings h2').innerText = translations[currentLanguage].settingsTitle;
+            document.querySelector('#settings button').innerText = translations[currentLanguage].saveSettings;
+            document.querySelector('#settings label').innerText = translations[currentLanguage].language;
+            document.querySelector('#settings option[value="auto"]').innerText = translations[currentLanguage].default;
+        }
+
+        document.addEventListener('DOMContentLoaded', applyTranslations);
     </script>
 </body>
 </html>
